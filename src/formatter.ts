@@ -15,6 +15,36 @@ export function activate(context: vscode.ExtensionContext) {
             }
         })
     );
+
+    context.subscriptions.push(
+        vscode.languages.registerDocumentFormattingEditProvider({ language: 'yaml', pattern: '**/*.pa.yaml' }, {
+            provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
+                const edits: vscode.TextEdit[] = [];
+                const fullRange = new vscode.Range(
+                    document.positionAt(0),
+                    document.positionAt(document.getText().length)
+                );
+                const formattedText = formatYamlWithPowerFx(document.getText());
+                edits.push(vscode.TextEdit.replace(fullRange, formattedText));
+                return edits;
+            }
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.languages.registerDocumentFormattingEditProvider({ language: 'yaml', pattern: '**/*.te.yaml' }, {
+            provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
+                const edits: vscode.TextEdit[] = [];
+                const fullRange = new vscode.Range(
+                    document.positionAt(0),
+                    document.positionAt(document.getText().length)
+                );
+                const formattedText = formatYamlWithPowerFx(document.getText());
+                edits.push(vscode.TextEdit.replace(fullRange, formattedText));
+                return edits;
+            }
+        })
+    );
 }
 
 function formatPowerFxCode(code: string): string {
@@ -63,6 +93,38 @@ function formatPowerFxCode(code: string): string {
 
         // Default case for other lines
         formattedLines.push(indentString.repeat(indentLevel) + line);
+    }
+
+    return formattedLines.join('\n');
+}
+
+function formatYamlWithPowerFx(yaml: string): string {
+    const lines = yaml.split('\n');
+    let formattedLines: string[] = [];
+    let inPowerFxBlock = false;
+    let powerFxLines: string[] = [];
+
+    for (let line of lines) {
+        if (line.includes(': =')) {
+            inPowerFxBlock = true;
+            powerFxLines.push(line.split(': =')[1].trim());
+            formattedLines.push(line.split(': =')[0] + ': =');
+        } else if (inPowerFxBlock && (line.startsWith(' ') || line.startsWith('\t'))) {
+            powerFxLines.push(line.trim());
+        } else {
+            if (inPowerFxBlock) {
+                const formattedPowerFx = formatPowerFxCode(powerFxLines.join('\n'));
+                formattedLines.push(...formattedPowerFx.split('\n').map(l => '  ' + l));
+                inPowerFxBlock = false;
+                powerFxLines = [];
+            }
+            formattedLines.push(line);
+        }
+    }
+
+    if (inPowerFxBlock) {
+        const formattedPowerFx = formatPowerFxCode(powerFxLines.join('\n'));
+        formattedLines.push(...formattedPowerFx.split('\n').map(l => '  ' + l));
     }
 
     return formattedLines.join('\n');

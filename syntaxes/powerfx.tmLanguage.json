@@ -9,7 +9,8 @@
     { "include": "#variables" },
     { "include": "#strings" },
     { "include": "#numbers" },
-    { "include": "#formulas" }
+    { "include": "#formulas" },
+    { "include": "#yaml-properties" }
   ],
   "repository": {
     "brackets": {
@@ -198,6 +199,26 @@
         {
           "name": "constant.numeric.integer",
           "match": "\\b[0-9]+\\b"
+        }
+      ]
+    },
+    "yaml-properties": {
+      "patterns": [
+        {
+          "name": "meta.embedded.block.powerfx",
+          "begin": ":\\s*=",
+          "beginCaptures": {
+            "0": { "name": "punctuation.separator.key-value.yaml" }
+          },
+          "end": "(?=$|\\n|,)",
+          "patterns": [
+            { "include": "#functions" },
+            { "include": "#numbers" },
+            { "include": "#keywords" },
+            { "include": "#operators" },
+            { "include": "#variables" },
+            { "include": "#brackets" }
+          ]
         }
       ]
     }

@@ -10,7 +10,8 @@
   },
   "main": "./out/extension.js",
   "activationEvents": [
-    "onLanguage:powerfx"
+    "onLanguage:powerfx",
+    "onLanguage:yaml"
   ],
   "categories": [
     "Programming Languages"
@@ -28,7 +29,9 @@
           "powerfx"
         ],
         "extensions": [
-          ".fx"
+          ".fx",
+          "*.pa.yaml",
+          "*.te.yaml"
         ],
         "configuration": "./language-configuration.json",
         "icon": {
